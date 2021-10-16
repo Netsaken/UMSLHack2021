@@ -1,0 +1,29 @@
+button {
+    height: 50px;
+    width: 90%;
+    outline: none;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+  }
+  
+button.current {
+  box-shadow: 0 0 0 2px white,
+              0 0 0 4px black;
+}
+
+#popup_body{
+  height: 100px;
+  width: 100px;
+}
+
+p {
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#FactCheck_Modal {
+  height: 100%;
+  width: 100%;
+  background-color: blueviolet;
+}

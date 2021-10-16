@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "Fact Checking System",
+    "description": "This extension fact checks the current page displayed.",
+    "version": "1.0",
+    "action": {
+        "default_icon": "image.png",
+        "default_popup": "popup.html",
+        "default_title": "Fact Check System!"
+    },
+    "permissions": [
+        "storage", "activeTab", "scripting"
+        ]
+
+}
