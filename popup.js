@@ -1,23 +1,22 @@
 function main() {
-  const createModal = (searchText)  => {
+  const createModal = (searchText) => {
     let modalDiv = document.createElement("div");
     modalDiv.id = "FactCheck_Modal";
-    
+
     let contentDiv = document.createElement("div");
     contentDiv.id = "FactCheck_Modal-content";
     let defaulttext = document.createElement("p");
     defaulttext.id = "FactCheck_Modal-defaulttext";
     defaulttext.innerText = "Fact Checking Selection:"
-  
+
     let searchtext = document.createElement("p");
     searchtext.id = "FactCheck_Modal-searchtext";
     defaulttext.innerText = searchText
-  
-  
+
     contentDiv.appendChild(defaulttext)
     contentDiv.appendChild(searchtext)
     modalDiv.appendChild(contentDiv)
-  
+
     return modalDiv
   }
 
@@ -32,7 +31,7 @@ function main() {
       console.log("Nothing selected. Please select again")
     } else {
       console.log(text);
-      
+
       const style = document.createElement('style');
       style.innerHTML = `
         #FactCheck_Modal {
@@ -58,52 +57,51 @@ function main() {
           min-height: 400px;
           margin: 100px auto; 
       }
-      `;  
-  
-    
-      
-      document.head.appendChild(style); 
+      `;
+
+      document.head.appendChild(style);
       let modalDiv = createModal(text);
       document.body.appendChild(modalDiv)
-    } 
-    
     }
+  }
 
-    selectText();
+  function searchQuery(inputString) {
+    let lang = "languageCode=en-US";
+    let age = "&maxAgeDays=365";
+    let query = "&query=" + inputString;
+    let key = "&key=AIzaSyAkhSFIbJ568Dv6xcIMB2wAi2DoVA2Gd7k";
 
-  
+    let combinedEntry = lang + age + query + key;
+    
+    fetch('https://factchecktools.googleapis.com/v1alpha1/claims:search?' + combinedEntry)
+      .then(response => {
+        return response.json();
+      })
+      .then(users => {
+        console.log(users);
+      });
+  }
 
+  let exampleString = "bigfoot";
 
+  searchQuery(exampleString);
 
-
-
+  selectText();
 }
 
-
-  
-
+document.addEventListener('DOMContentLoaded', function () {
 
 
-
-
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', function() {
-
-  
   let checkPageButton = document.getElementById('checkPage');
-    checkPageButton.addEventListener('click', async () => {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          function: main,
-        });
-      
+  checkPageButton.addEventListener('click', async () => {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: main,
+    });
 
-    }, false);
+
   }, false);
+}, false);
 
 
