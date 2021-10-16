@@ -1,8 +1,37 @@
 function main() {
-  const createModal = (searchText) => {
+  async function searchQuery(inputString) {
+    
+    inputString = cleanText(inputString)
+    let inputString2 = "Trump real president"; 
+    let lang = "languageCode=en-US";
+    let age = "&maxAgeDays=365";
+    let query = "&query=" + inputString2;
+    let key = "&key=AIzaSyAkhSFIbJ568Dv6xcIMB2wAi2DoVA2Gd7k";
+
+    let combinedEntry = lang + age + query + key;
+
+    let res = await fetch('https://factchecktools.googleapis.com/v1alpha1/claims:search?' + combinedEntry);
+    let results = await res.json()
+    
+    let claims = results.claims
+
+    contentDiv = createModal(inputString)
+    resultsDivs = generateAPIHTML(claims);
+
     let modalDiv = document.createElement("div");
     modalDiv.id = "FactCheck_Modal";
 
+
+    contentDiv.appendChild(resultsDivs)
+    
+    modalDiv.appendChild(contentDiv)
+    
+    document.body.appendChild(modalDiv)
+  }
+  
+  const createModal = (searchText)  => {
+    
+    
     let contentDiv = document.createElement("div");
     contentDiv.id = "FactCheck_Modal-content";
     let defaulttext = document.createElement("p");
@@ -11,28 +40,68 @@ function main() {
 
     let searchtext = document.createElement("p");
     searchtext.id = "FactCheck_Modal-searchtext";
-    defaulttext.innerText = searchText
+    searchtext.innerHTML = "<strong>Original Text:  '</strong>" + searchText + "'"
+
+    cleanedText = cleanText(searchText);
+    let cleanedtext = document.createElement("p");
+    cleanedtext.id = "FactCheck_Modal-cleanedText";
+    cleanedtext.innerHTML = "<strong>Cleaned Text:  '</strong>" + cleanedText + "'"
+
+    let exitbtn = document.createElement("button");
+    exitbtn.id = "FactCheck_Modal-exitbtn";
+    exitbtn.innerText = "X";
+    exitbtn.addEventListener("click", deleteModal);
 
     contentDiv.appendChild(defaulttext)
     contentDiv.appendChild(searchtext)
-    modalDiv.appendChild(contentDiv)
-
-    return modalDiv
+    contentDiv.appendChild(cleanedtext)
+    contentDiv.appendChild(exitbtn)
+    
+  
+    return contentDiv
   }
 
-  function selectText() {
-    let text = "";
-    if (window.getSelection) {
-      text = window.getSelection().toString();
-    } else if (document.selection && document.selection.type != "Control") {
-      text = document.selection.createRange().text;
-    }
-    if (text.length < 5) {
-      console.log("Nothing selected. Please select again")
-    } else {
-      console.log(text);
+  function generateAPIHTML(results) {  
+    let cardHolder = document.createElement("div");
+    cardHolder.id = "FactCheck_Modal-cardHolder"
+    for (let i = 0; i < results.length; i++ ) {
+      let card = document.createElement("div");
+      reviews = results[i].claimReview[0]
+      let text = results[i].text;
+      let reviewTitle = reviews.title;
+      let rating = reviews.textualRating;
+      let url = reviews.url;
+      let claimDate = results[i].claimDate
 
-      const style = document.createElement('style');
+      let divTitle = document.createElement("p")
+      divTitle.innerHTML = "<strong>Title: </strong>" + text
+      
+      let divClaimDate = document.createElement("p")
+      divClaimDate.innerHTML = "<strong>Claim Date: </strong>" + claimDate
+
+      let divRating = document.createElement("p")
+      divRating.innerHTML = "<strong>Rating: </strong>" + rating
+      
+      let divReviewTitle = document.createElement("p")
+      divReviewTitle.innerHTML = "<strong>Review Title: </strong>" + reviewTitle
+
+      let divUrl = document.createElement("p")
+      divUrl.innerHTML = "<strong>Review URL: </strong>" + url
+      
+      card.appendChild(divTitle)
+      card.appendChild(divClaimDate)
+      card.appendChild(divRating)
+      card.appendChild(divReviewTitle)
+      card.appendChild(divUrl)
+
+      cardHolder.appendChild(card);
+
+    }
+    return cardHolder;
+  }
+
+  function createStyle() {
+    const style = document.createElement('style');
       style.innerHTML = `
         #FactCheck_Modal {
           display: block; 
@@ -57,34 +126,70 @@ function main() {
           min-height: 400px;
           margin: 100px auto; 
       }
-      `;
 
-      document.head.appendChild(style);
-      let modalDiv = createModal(text);
-      document.body.appendChild(modalDiv)
-    }
+      #FactCheck_Modal-exitbtn {
+        line-height: 12px;
+        width: 20px;
+        font-size: 10pt;
+        font-family: tahoma;
+        margin-top: 105px;
+        margin-right: 11%;
+        position: absolute;
+        top:0;
+        right:0;
+        color: red;
+        background-color: white;
+        border-radius: 100%;
+        border: 1px solid red;
+        text-align: center;
+      }
+
+      #FactCheck_Modal-defaulttext {
+        line-height: 18px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      `;  
+
+      return style
   }
 
-  function searchQuery(inputString) {
-    let lang = "languageCode=en-US";
-    let age = "&maxAgeDays=365";
-    let query = "&query=" + inputString;
-    let key = "&key=AIzaSyAkhSFIbJ568Dv6xcIMB2wAi2DoVA2Gd7k";
-
-    let combinedEntry = lang + age + query + key;
-    
-    fetch('https://factchecktools.googleapis.com/v1alpha1/claims:search?' + combinedEntry)
-      .then(response => {
-        return response.json();
-      })
-      .then(users => {
-        console.log(users);
-      });
+  function deleteModal() {
+    modal = document.getElementById("FactCheck_Modal");
+    modal.remove();
   }
 
-  let exampleString = "bigfoot";
+  function cleanText(text) {
+    cleanedText = text.replace(/[^a-zA-Z0-9 ]/g, "")
 
-  searchQuery(exampleString);
+    return cleanedText
+  }
+
+  function selectText() {
+    if (!document.getElementById("FactCheck_Modal")) {
+      let text = "";
+      if (window.getSelection) {
+        text = window.getSelection().toString();
+      } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+      }
+  
+  
+      if (text.length < 5) {
+        text = "Nothing selected. Please select again"
+        
+        console.log("Nothing selected. Please select again")
+      } else {
+                
+        let styleCSS = createStyle(); 
+        document.head.appendChild(styleCSS);
+        
+        searchQuery(text)
+      } 
+    } 
+  }
+
+  
 
   selectText();
 }
