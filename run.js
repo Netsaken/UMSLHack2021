@@ -67,7 +67,7 @@ async function main() {
   async function searchQuery(inputString) {
     
     let lang = "languageCode=en-US";
-    let age = "&maxAgeDays=365";
+    let age = "&maxAgeDays=1825";
     let query = "&query=" + inputString;
     let key = "&key=AIzaSyAkhSFIbJ568Dv6xcIMB2wAi2DoVA2Gd7k";
 
@@ -114,7 +114,7 @@ async function main() {
   function createFindFailure() {
     zeroDiv = document.createElement("p");
     zeroDiv.innerHTML =
-      "<strong>NO RESULTS FOUND. PLEASE TRY ANOTHER STRING</strong>";
+      "<strong>NO RESULTS FOUND. PLEASE TRY ANOTHER SELECTION</strong>";
     zeroDiv.classList.add("FactCheck_Modal-more");
 
     resultsDivs = document.createElement("div");
