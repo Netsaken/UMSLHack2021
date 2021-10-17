@@ -9,7 +9,8 @@
         "default_title": "Fact Check System"
     },
     "icons": {
-        "16": "icon.bmp"    
+        "16": "icon.png",
+        "32" : "icon.png"
     },
 
     "permissions": [
