@@ -34,14 +34,23 @@ async function main() {
   searchText =selectText();
 
   //Only runs if text is in required length range
-  if (searchText.length > 0 && searchText.length < 50) {
+  if (searchText.length < 1) {
+    alert("Nothing selected. Please select again");
+  } else if (searchText.length > 120) {
+    alert("Selection is too long. Max length of 120 characters. Please select again");
+  } else {
   
+    //Loads CSS into tab.
+    let styleCSS = createStyle();
+    document.head.appendChild(styleCSS);
+
     //Runs the Google Fact Check API and returns the results
     claims = await searchQuery(searchText);
 
     //Takes the claims and generates all HTML to be displayed
     generateHTML(claims, searchText)
-  } 
+  }
+
  
   /*
   Function detects what was selected from current tab and stores it. It does some basic processing
@@ -63,24 +72,10 @@ async function main() {
       text = text.replace(".", " ")
       text = text.replace(/[^a-zA-Z0-9- ]/g, "");
       //Removes white space from beginning and end of string.
-      text = text.trim();
-      
-      //Filter response based on length of text selected.
-      if (text.length < 1) {
-        alert("Nothing selected. Please select again");
-        return ""
-      } else if (text.length > 50) {
-        alert("Selection is too long. Max length of 50 characters. Please select again");
-        return ""
-      } else {
-        
-        //Loads CSS into tab.
-        let styleCSS = createStyle();
-        document.head.appendChild(styleCSS);
+      text = text.trim();      
 
-        return text;
+      return text;
 
-      }
     }
   }
 
