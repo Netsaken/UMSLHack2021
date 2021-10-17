@@ -1,5 +1,3 @@
-// var popup = require("./run")
-
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "FactCheck",
@@ -9,29 +7,9 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 function test1(info, tab) {
-//   const tabId = getTabId();
-  chrome.tabs.create({
-    url: "www.google.com?" + JSON.stringify(tab),
-  });
-//   try {
-//     chrome.scripting.executeScript(
-//       {
-//         target: { tabId: tab.id },
-//         func: () => {
-//           console.log("Test");
-//         },
-//       },
-//       () => {
-//         chrome.tabs.create({
-//           url: "popup.js",
-//         });
-//       }
-//     );
-//   } catch (e) {
-//     chrome.tabs.create({
-//       url: ".js" + info + tab,
-//     });
-//   }
+//https://github.com/mirmalis/TiktokE/blob/d5a0c255bef817a439083fd12f4a1859cbed7ecb/extension1/background.js
+
+chrome.scripting.executeScript({target: { tabId: tab.id },files: ['./run.js']});
 }
 
 chrome.contextMenus.onClicked.addListener(test1);

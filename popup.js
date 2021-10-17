@@ -1,10 +1,93 @@
-function main() {
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+    let checkPageButton = document.getElementById("checkPage");
+    checkPageButton.addEventListener(
+      "click",
+      async () => {
+        let [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          function: main,
+        });
+      },
+      false
+    );
+  },
+  false
+);
+
+/*
+Chrome Extensions only allowed the running of a single function on click. It does
+not allow importing function or files. This requires that everything that needs 
+to be done, be done in one main function. The primary callouts are at the top and 
+all of the function definitions are below the callouts.
+*/
+async function main() {
+  let searchText = "";
+  let claims;
+
+  //Gathers the text that was selected for fact check.
+  searchText =selectText();
+
+  //Only runs if text is in required length range
+  if (searchText.length > 0 && searchText.length < 50) {
+  
+    //Runs the Google Fact Check API and returns the results
+    claims = await searchQuery(searchText);
+
+    //Takes the claims and generates all HTML to be displayed
+    generateHTML(claims, searchText)
+  } 
+ 
+  /*
+  Function detects what was selected from current tab and stores it. It does some basic processing
+  and determines length. Gives alerts if length outside of acceptable range. Return final processed
+  text.
+  */
+  function selectText() {
+    
+    //if Fact Check Modal Already exists, does not do anything.
+    if (!document.getElementById("FactCheck_Modal")) {
+      let text = "";
+      if (window.getSelection) {
+        text = window.getSelection().toString();
+      } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+      }
+
+      //Processes text, removes anything not a letter or number.
+      text = text.replace(/[^a-zA-Z0-9 ]/g, "");
+      //Removes white space from beginning and end of string.
+      text = text.trim();
+      
+      //Filter response based on length of text selected.
+      if (text.length < 1) {
+        alert("Nothing selected. Please select again");
+        return ""
+      } else if (text.length > 50) {
+        alert("Selection is too long. Max length of 50 characters. Please select again");
+        return ""
+      } else {
+        
+        //Loads CSS into tab.
+        let styleCSS = createStyle();
+        document.head.appendChild(styleCSS);
+
+        return text;
+
+      }
+    }
+  }
+
   //Function to call Google Fact Check API and dynamically display search results.
   async function searchQuery(inputString) {
-    inputString = cleanText(inputString);
-    inputString = inputString.trim();
+    
     let lang = "languageCode=en-US";
-    let age = "&maxAgeDays=365";
+    let age = "&maxAgeDays=1825";
     let query = "&query=" + inputString;
     let key = "&key=AIzaSyAkhSFIbJ568Dv6xcIMB2wAi2DoVA2Gd7k";
 
@@ -16,20 +99,23 @@ function main() {
     );
 
     let results = await res.json();
-
     let claims = results.claims;
 
-    console.log(typeof claims, claims);
+    return claims;
 
+  }
+
+  //Main function generate all HTML for fact checking extenstion.
+  function generateHTML(claims, inputString) {
     let resultsDivs;
 
+    //Determines if there are any results from API call
     if (typeof claims == "object") {
-      console.log(claims.length);
-      resultsDivs = generateAPIHTML(claims);
+      resultsDivs = generateClaimsHTML(claims);
     } else {
       resultsDivs = createFindFailure();
     }
-
+    
     let modalDiv = document.createElement("div");
     modalDiv.id = "FactCheck_Modal";
 
@@ -44,10 +130,11 @@ function main() {
     document.body.appendChild(modalDiv);
   }
 
+  //Generates HTML objects if nothing was returned from API
   function createFindFailure() {
     zeroDiv = document.createElement("p");
     zeroDiv.innerHTML =
-      "<strong>NO RESULTS FOUND. PLEASE TRY ANOTHER STRING</strong>";
+      "<strong>NO RESULTS FOUND. PLEASE TRY ANOTHER SELECTION</strong>";
     zeroDiv.classList.add("FactCheck_Modal-more");
 
     resultsDivs = document.createElement("div");
@@ -57,6 +144,9 @@ function main() {
     return resultsDivs;
   }
 
+  /*Large function to generate HTML objects for known fact check sites.
+  Links generate a search on the sites of selected text. 
+  */
   function moreWebsites(text) {
     queryText = text.replace(" ", "+");
 
@@ -106,6 +196,7 @@ function main() {
 
     placeHolderDiv = document.createElement("div");
 
+    //Apends all objects into parent object.
     placeHolderDiv.appendChild(searchMoreDiv);
     placeHolderDiv.appendChild(poltifactDiv);
     placeHolderDiv.appendChild(snopesDiv);
@@ -115,25 +206,36 @@ function main() {
 
     return placeHolderDiv;
   }
-
-  const createModal = (searchText) => {
+ 
+ 
+  /* 
+  Function creates HTML parent object to hold all info displayed in modal*/
+  function createModal(searchText) {
+    
+    //Creates parent HTML object to hold all HTML objects in Modal
     let contentDiv = document.createElement("div");
     contentDiv.id = "FactCheck_Modal-content";
+    
+    //Creates Text at top of Modal
     let defaulttext = document.createElement("p");
     defaulttext.id = "FactCheck_Modal-defaulttext";
     defaulttext.innerText = "Fact Checking Selection:";
 
-    cleanedText = cleanText(searchText);
+    //Creates object to hold and display text that as being fact checked.
     let searchtext = document.createElement("p");
     searchtext.id = "FactCheck_Modal-searchtext";
     searchtext.innerHTML =
-      "<strong>Original Text:  '</strong>" + cleanedText + "'";
+      "<strong>Original Text:  '</strong>" + searchText + "'";
 
+    //Creates a close button for the modal. 
     let exitbtn = document.createElement("button");
     exitbtn.id = "FactCheck_Modal-exitbtn";
     exitbtn.innerText = "CLOSE";
+    
+    //Adds function to the on click action of HTML object. Calls deleteModal()
     exitbtn.addEventListener("click", deleteModal);
 
+    //Appends all created objects into parent object.
     contentDiv.appendChild(exitbtn);
     contentDiv.appendChild(defaulttext);
     contentDiv.appendChild(searchtext);
@@ -142,12 +244,31 @@ function main() {
     return contentDiv;
   };
 
-  function generateAPIHTML(results) {
+  /* Function grabs the entire created modal HTML object and deletes it. */
+  function deleteModal() {
+    modal = document.getElementById("FactCheck_Modal");
+    modal.remove();
+  }
+
+  /*  
+  Input API search results and dynamically generates the HTML to display results.
+  Function returns combined HTML object.
+  */
+  function generateClaimsHTML(results) {
+    
+    //Create parent HTML object to hold all of the created HTML objects
     let cardHolder = document.createElement("div");
     cardHolder.id = "FactCheck_Modal-cardHolder";
+    
+    //Loops through all results
     for (let i = 0; i < results.length; i++) {
+      
+      //Creates HTML of div to hold all info of this result.
       let card = document.createElement("div");
+      //Assigns card the HTML class: FactCheck_Modal-card
       card.classList.add("FactCheck_Modal-card");
+      
+      //Pulls out all info from results to be displayed
       reviews = results[i].claimReview[0];
       let text = results[i].text;
       let reviewTitle = reviews.title;
@@ -155,12 +276,16 @@ function main() {
       let url = reviews.url;
       let claimDate = results[i].claimDate;
 
+      //Creates HTML objects for info pulled out
+      //The claim text.
       let divTitle = document.createElement("p");
       divTitle.innerHTML = "<strong>Title: </strong>" + text;
 
+      //The date that the claim was made.
       let divClaimDate = document.createElement("p");
       divClaimDate.innerHTML = "<strong>Claim Date: </strong>" + claimDate;
 
+      //Textual rating of claim.
       let divRating = document.createElement("p");
       divRating.innerHTML = "<strong>Rating: </strong>" + rating;
       if (rating == "False") {
@@ -169,10 +294,12 @@ function main() {
         divRating.classList.add("FactCheck_Modal-True");
       }
 
+      //The title of this claim review, if it can be determined.
       let divReviewTitle = document.createElement("p");
       divReviewTitle.innerHTML =
         "<strong>Review Title: </strong>" + reviewTitle;
 
+      //The URL of this claim review.
       let divUrl = document.createElement("p");
       divUrl.innerHTML =
         "<strong>Review URL: </strong><a href='" +
@@ -181,17 +308,22 @@ function main() {
         url +
         "</a>";
 
+      //Appends all HTML objects into card. Order Matters, top first.
       card.appendChild(divTitle);
       card.appendChild(divClaimDate);
       card.appendChild(divRating);
       card.appendChild(divReviewTitle);
       card.appendChild(divUrl);
 
+      //Appends card opbject into the cardHolder object.
       cardHolder.appendChild(card);
     }
     return cardHolder;
   }
 
+  /*  Function loads CSS into active tab. This CSS controls all of the formatting for
+  the injected HTML. It has long, unique class and id names, to not interfere with
+  tab native CSS.*/
   function createStyle() {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -307,66 +439,6 @@ function main() {
     return style;
   }
 
-  function deleteModal() {
-    modal = document.getElementById("FactCheck_Modal");
-    modal.remove();
-  }
-
-  function cleanText(text) {
-    cleanedText = text.replace(/[^a-zA-Z0-9 ]/g, "");
-
-    return cleanedText;
-  }
-
-  function selectText() {
-    if (!document.getElementById("FactCheck_Modal")) {
-      let text = "";
-      if (window.getSelection) {
-        text = window.getSelection().toString();
-      } else if (document.selection && document.selection.type != "Control") {
-        text = document.selection.createRange().text;
-      }
-
-      if (text.length < 5) {
-        alert("Nothing selected. Please select again");
-      } else {
-        let styleCSS = createStyle();
-
-        const test_style = document.createElement("link");
-        test_style.rel = 'stylesheet';
-        test_style.type = 'text/css';
-        test_style.href = 'test.css';
-
-
-        document.head.appendChild(styleCSS);
-        document.head.appendChild(test_style);
-
-        searchQuery(text);
-      }
-    }
-  }
-
-  selectText();
 }
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
-    let checkPageButton = document.getElementById("checkPage");
-    checkPageButton.addEventListener(
-      "click",
-      async () => {
-        let [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          function: main,
-        });
-      },
-      false
-    );
-  },
-  false
-);
+

@@ -1,9 +1,11 @@
 # UMSLHack2021: Fact Checker Chrome Extension
 
 ### Description
-  Unsure about what you're reading? Highlight a few words, click on the extension, and then click Fact Check! This will display an overlay with a list of up to 10 related statements and their degree of truth.
+  Unsure about what you're reading? Highlight a few words, click on the extension, and then click Fact Check! This will display an overlay with a list of up to 10 related statements and their degree of truth. If these results don't work for you, this extension provides a short list of websites you can use to conduct further research. Clicking any of these links will automatically open a tab with a list of search results for your selection.
   
-  This Chrome Extension is written in Javascript and makes use of the Google Fact Check Tools API. Use of this extension is subject to Google’s API Terms of Service.
+  For convenience, this extension also adds an extra item to your right-click context menu in Chrome. After highlighting your terms, simply right click on your highlighted text and click Fact Check from the menu that pops up.
+  
+  This Chrome Extension is written in Javascript, HTML, CSS and makes use of the Google Fact Check Tools API. Use of this extension is subject to Google’s API Terms of Service.
 
 ### How to Install
   1. Download the files into a folder on your computer. 
@@ -14,6 +16,7 @@
   6. The Extension should now be on your list. Enable the extension and you're good to go!
 
 ### Future Feature Wish List
-  - Support for more APIs, including Politifact and scientific databases
-  - Web server hosting that calls APIs, to reduce the strain on the client
-  - Search predictions and autocomplete
+  - Support for more APIs, including Politifact and scientific databases.
+  - Web server hosting that calls APIs, to reduce the strain on the client.
+  - Web Server that does not rely on other APIs. Scrapes trusted sites and creates a database of trusted information.
+  - Search predictions and autocomplete.
