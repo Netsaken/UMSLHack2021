@@ -17,3 +17,4 @@
   - Support for more APIs, including Politifact and scientific databases
   - Web server hosting that calls APIs, to reduce the strain on the client
   - Search predictions and autocomplete
+  - Web Server that does not rely on other APIs. Scrapes trusted sites and creates a database of trusted information.
