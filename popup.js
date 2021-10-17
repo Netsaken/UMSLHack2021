@@ -1,4 +1,5 @@
 function main() {
+  //Function to call Google Fact Check API and dynamically display search results.
   async function searchQuery(inputString) {
     inputString = cleanText(inputString);
     inputString = inputString.trim();
@@ -13,6 +14,7 @@ function main() {
       "https://factchecktools.googleapis.com/v1alpha1/claims:search?" +
         combinedEntry
     );
+
     let results = await res.json();
 
     let claims = results.claims;
