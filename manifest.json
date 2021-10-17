@@ -8,8 +8,15 @@
         "default_popup": "popup.html",
         "default_title": "Fact Check System"
     },
+    "icons": {
+        "16": "icon.bmp"    
+    },
+
     "permissions": [
-        "storage", "activeTab", "scripting"
-        ]
+        "storage", "activeTab", "scripting","contextMenus"
+        ],
+        "background": {
+            "service_worker": "background.js"
+          }
 
 }
