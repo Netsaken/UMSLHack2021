@@ -1,0 +1,110 @@
+#FactCheck_Modal {
+    display: block; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.8);
+  }
+  
+  #FactCheck_Modal strong {
+    font-weight: bold;
+  }
+
+  #FactCheck_Modal-content {
+    display:block;
+    color: black;
+    background-color: #fefefe;
+    padding: 30px 30px 10px 30px;
+    border: 5px solid #0086F1;
+    width: 80%;
+    text-align: center;
+    min-height: 400px;
+    margin: 100px auto; 
+}
+
+#FactCheck_Modal-exitbtn {
+  line-height: 10px;
+  width: 55px;
+  font-size: 10pt;
+  font-family: tahoma;
+  margin-top: 110px;
+  margin-right: 10%;
+  position: relative;
+  top:0;
+  right:0;
+  color: red;
+  background-color: white;
+  border-radius: 25%;
+  border: 2px solid red;
+  text-align: center;
+}
+
+#FactCheck_Modal-exitbtn:hover {
+  cursor: pointer;
+}
+
+#FactCheck_Modal-exitbtn:active {
+  background: red;
+}
+
+#FactCheck_Modal-defaulttext {
+  color: black;
+  line-height: 22px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#FactCheck_Modal-searchtext {
+  color: black;
+  line-height: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 5px;
+}
+.FactCheck_Modal-card {
+  border: 2px solid black;
+  color: black;
+  margin: 5px;
+  line-height: 16px;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.FactCheck_Modal-False {
+  color:red;
+}
+
+.FactCheck_Modal-True {
+  color:green;
+}
+
+#FactCheck_Modal a:hover {
+  cursor: pointer;
+}
+
+.FactCheck_Modal-list {
+  line-height: 20px;
+  font-size: 20px;
+  margin: 10px 50px 10px 50px;
+  text-align: center;
+}
+
+
+.FactCheck_Modal-more {
+  line-height: 18px;
+  font-size: 18px;
+  margin: 10px;
+}
+
+#FactCheck_Modal-buffer {
+  margin: 30px;
+}
+
+.FactCheck_Modal-bold {
+  font-weight: bold;
+}
