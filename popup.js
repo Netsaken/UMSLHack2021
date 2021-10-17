@@ -59,8 +59,9 @@ async function main() {
         text = document.selection.createRange().text;
       }
 
-      //Processes text, removes anything not a letter or number.
-      text = text.replace(/[^a-zA-Z0-9 ]/g, "");
+      //Processes text, removes anything not a letter or number.Keeps hyphens.
+      text = text.replace(".", " ")
+      text = text.replace(/[^a-zA-Z0-9- ]/g, "");
       //Removes white space from beginning and end of string.
       text = text.trim();
       
